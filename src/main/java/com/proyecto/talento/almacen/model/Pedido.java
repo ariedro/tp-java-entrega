@@ -43,8 +43,11 @@ public class Pedido {
     this.productos = productos;
   }
 
-  public void addProducto(Producto producto) {
-    this.productos.add(producto);
+  public void addProducto(Producto producto, int cantidad) throws StockInsuficienteException {
+    producto.sacar(cantidad);
+    for (int i = 0; i < cantidad; i++) {
+      this.productos.add(producto);
+    }
   }
 
   public float getCostoTotal() {

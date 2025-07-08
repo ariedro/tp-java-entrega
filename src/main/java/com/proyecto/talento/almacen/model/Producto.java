@@ -39,6 +39,10 @@ public class Producto {
     return precio;
   }
 
+  public int getStock() {
+    return stock;
+  }
+
   public void setNombre(String nuevoNombre) {
     this.nombre = nuevoNombre;
   }

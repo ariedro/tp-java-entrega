@@ -3,6 +3,7 @@ package com.proyecto.talento.almacen.controller;
 import com.proyecto.talento.almacen.model.Pedido;
 import com.proyecto.talento.almacen.model.PedidoAgregacionDTO;
 import com.proyecto.talento.almacen.model.Producto;
+import com.proyecto.talento.almacen.model.StockInsuficienteException;
 import com.proyecto.talento.almacen.service.PedidoService;
 import com.proyecto.talento.almacen.service.ProductoService;
 
@@ -57,8 +58,10 @@ public class PedidoController {
     Pedido pedido = pedidoOptional.get();
     Producto producto = productoOptional.get();
 
-    for (int i = 0; i < pedidoAgregacion.getCantidad(); i++) {
-      pedido.getProductos().add(producto);
+    try {
+      pedido.addProducto(producto, pedidoAgregacion.getCantidad());
+    } catch (StockInsuficienteException excepcion) {
+      return ResponseEntity.badRequest().build();
     }
 
     Pedido pedidoActualizado = pedidoService.guardarPedido(pedido);
