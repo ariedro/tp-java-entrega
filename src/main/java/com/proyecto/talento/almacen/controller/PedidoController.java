@@ -3,11 +3,11 @@ package com.proyecto.talento.almacen.controller;
 import com.proyecto.talento.almacen.model.Pedido;
 import com.proyecto.talento.almacen.model.PedidoAgregacionDTO;
 import com.proyecto.talento.almacen.model.Producto;
-import com.proyecto.talento.almacen.model.StockInsuficienteException;
 import com.proyecto.talento.almacen.service.PedidoService;
 import com.proyecto.talento.almacen.service.ProductoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,13 +46,14 @@ public class PedidoController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Pedido> agregarProducto(@PathVariable Long id,
+  public ResponseEntity<?> agregarProducto(@PathVariable Long id,
       @RequestBody PedidoAgregacionDTO pedidoAgregacion) {
     Optional<Pedido> pedidoOptional = pedidoService.obtenerPedidoPorId(id);
     Optional<Producto> productoOptional = productoService.obtenerProductoPorId(pedidoAgregacion.getIdProducto());
 
     if (pedidoOptional.isEmpty() || productoOptional.isEmpty()) {
-      return ResponseEntity.notFound().build();
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body("No se ha encontrado el pedido");
     }
 
     Pedido pedido = pedidoOptional.get();
@@ -60,8 +61,8 @@ public class PedidoController {
 
     try {
       pedido.addProducto(producto, pedidoAgregacion.getCantidad());
-    } catch (StockInsuficienteException excepcion) {
-      return ResponseEntity.badRequest().build();
+    } catch (Exception excepcion) {
+      return ResponseEntity.badRequest().body(excepcion.getMessage());
     }
 
     Pedido pedidoActualizado = pedidoService.guardarPedido(pedido);
